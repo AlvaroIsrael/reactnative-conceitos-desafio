@@ -46,7 +46,7 @@ export default function App() {
 
               <View style={styles.techsContainer}>
                 {
-                  repository.techs.split(',').map(tech => (
+                  repository.techs.map(tech => (
                     <Text key={repository.id + tech} style={styles.tech}>
                       {tech.trim()}
                     </Text>
