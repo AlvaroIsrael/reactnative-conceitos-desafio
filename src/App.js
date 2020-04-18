@@ -1,36 +1,39 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import api from './services/api';
 
 import {
   SafeAreaView,
   View,
-  Text,
   FlatList,
+  Text,
   StatusBar,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
 
 export default function App() {
-
   const [repositories, setRepositories] = useState([]);
 
   useEffect(() => {
-    api.get('/repositories').then(res => {
-      setRepositories(res.data);
+    api.get('repositories').then(response => {
+      setRepositories(response.data);
     });
   }, []);
 
   async function handleLikeRepository(id) {
-    const response = await api.post(`/repositories/${id}/like`);
-    const repo = repositories.map(repository => {
+    const response = await api.post(`repositories/${id}/like`);
+
+    const likedRepository = response.data;
+
+    const repositoriesUpdated = repositories.map(repository => {
       if (repository.id === id) {
-        return response.data;
+        return likedRepository;
       } else {
         return repository;
       }
     });
-    setRepositories(repo);
+
+    setRepositories(repositoriesUpdated);
   }
 
   return (
@@ -45,12 +48,11 @@ export default function App() {
               <Text style={styles.repository}>{repository.title}</Text>
 
               <View style={styles.techsContainer}>
-                {
-                  repository.techs.map(tech => (
-                    <Text key={repository.id + tech} style={styles.tech}>
-                      {tech.trim()}
-                    </Text>
-                  ))}
+                {repository.techs.map(tech => (
+                  <Text key={tech} style={styles.tech}>
+                    {tech}
+                  </Text>
+                ))}
               </View>
 
               <View style={styles.likesContainer}>
