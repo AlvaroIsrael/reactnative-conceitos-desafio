@@ -1,5 +1,4 @@
-import React, {useEffect, useState} from 'react';
-import api from './services/api';
+import React, {useState, useEffect} from 'react';
 
 import {
   SafeAreaView,
@@ -10,8 +9,10 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
+import api from './services/api';
 
 export default function App() {
+
   const [repositories, setRepositories] = useState([]);
 
   useEffect(() => {
@@ -21,19 +22,17 @@ export default function App() {
   }, []);
 
   async function handleLikeRepository(id) {
+
     const response = await api.post(`repositories/${id}/like`);
+    const {likes} = response.data;
 
-    const likedRepository = response.data;
+    const index = repositories.findIndex(item => item.id === id);
 
-    const repositoriesUpdated = repositories.map(repository => {
-      if (repository.id === id) {
-        return likedRepository;
-      } else {
-        return repository;
-      }
-    });
+    const newRepositories = [...repositories];
+    newRepositories[index].likes = likes;
 
-    setRepositories(repositoriesUpdated);
+    setRepositories(newRepositories);
+
   }
 
   return (
@@ -49,7 +48,7 @@ export default function App() {
 
               <View style={styles.techsContainer}>
                 {repository.techs.map(tech => (
-                  <Text key={tech} style={styles.tech}>
+                  <Text style={styles.tech} key={tech}>
                     {tech}
                   </Text>
                 ))}
@@ -71,6 +70,7 @@ export default function App() {
               >
                 <Text style={styles.buttonText}>Curtir</Text>
               </TouchableOpacity>
+
             </View>
           )}
         />
