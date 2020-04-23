@@ -1,4 +1,5 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
+import api from './services/api';
 
 import {
   SafeAreaView,
@@ -9,10 +10,8 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import api from './services/api';
 
 export default function App() {
-
   const [repositories, setRepositories] = useState([]);
 
   useEffect(() => {
@@ -22,17 +21,19 @@ export default function App() {
   }, []);
 
   async function handleLikeRepository(id) {
-
     const response = await api.post(`repositories/${id}/like`);
-    const {likes} = response.data;
 
-    const index = repositories.findIndex(item => item.id === id);
+    const likedRepository = response.data;
 
-    const newRepositories = [...repositories];
-    newRepositories[index].likes = likes;
+    const repositoriesUpdated = repositories.map(repository => {
+      if (repository.id === id) {
+        return likedRepository;
+      } else {
+        return repository;
+      }
+    });
 
-    setRepositories(newRepositories);
-
+    setRepositories(repositoriesUpdated);
   }
 
   return (
@@ -48,7 +49,7 @@ export default function App() {
 
               <View style={styles.techsContainer}>
                 {repository.techs.map(tech => (
-                  <Text style={styles.tech} key={tech}>
+                  <Text key={tech} style={styles.tech}>
                     {tech}
                   </Text>
                 ))}
@@ -59,7 +60,7 @@ export default function App() {
                   style={styles.likeText}
                   testID={`repository-likes-${repository.id}`}
                 >
-                  {repository.likes} curtidas
+                  {repository.likes} curtida{repository.likes > 1 ? 's' : ''}
                 </Text>
               </View>
 
@@ -70,7 +71,6 @@ export default function App() {
               >
                 <Text style={styles.buttonText}>Curtir</Text>
               </TouchableOpacity>
-
             </View>
           )}
         />
